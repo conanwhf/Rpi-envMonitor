@@ -1,0 +1,135 @@
+# -*- coding: utf-8 -*-
+import sys
+import os
+import time
+import socket 
+import struct 
+import fcntl 
+import urllib,random,re
+
+
+def _file_output(arg, line=0):
+    f = open(arg)
+    res = f.readlines()
+    f.close()
+    if line==-1:#需要全部数据
+        return res
+    else:
+        return res[line]
+    #return res
+
+def _cmd_output(args, line=0):
+    f = os.popen(args)  
+    res = f.readlines()  
+    f.close()
+    if line==-1:#需要全部数据
+        return res
+    else:
+        return res[line]
+
+
+class RpiNetWork(object):
+    def __init__(self):
+        pass
+
+    def public_ip(self):
+        ip_regex = re.compile("(([0-9]{1,3}\.){3}[0-9]{1,3})")
+        # List of host which return the public IP address:
+        hosts = """http://www.whatismyip.com/
+            http://adresseip.com
+            http://www.aboutmyip.com/
+            http://www.ipchicken.com/
+            http://www.showmyip.com/
+            http://monip.net/
+            http://checkrealip.com/
+            http://ipcheck.rehbein.net/
+            http://checkmyip.com/
+            http://www.raffar.com/checkip/
+            http://www.thisip.org/
+            http://www.lawrencegoetz.com/programs/ipinfo/
+            http://www.mantacore.se/whoami/
+            http://www.edpsciences.org/htbin/ipaddress
+            http://mwburden.com/cgi-bin/getipaddr
+            http://checkipaddress.com/
+            http://www.glowhost.com/support/your.ip.php
+            http://www.tanziars.com/
+            http://www.naumann-net.org/
+            http://www.godwiz.com/
+            http://checkip.eurodyndns.org/""".strip().split("\n")
+        for i in range(3):
+            host = random.choice(hosts)
+            try:
+                results = ip_regex.findall(urllib.urlopen(host).read(200000))
+                if results: return results[0][0]
+            except:
+                pass # Let's try another host
+        return None
+
+
+    def local_ip(self, ethname='eth0'): 
+    	s=socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
+    	return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0X8915, struct.pack('256s', ethname[:15]))[20:24]) 
+
+
+    def net_stat(self):
+        #选择eth0数据，第四行
+        data1 = _file_output("/proc/net/dev", 3)
+        time.sleep(1)
+        data2 = _file_output("/proc/net/dev", 3)
+        before = data1.split()
+        after = data2.split()
+        down = int(after[1])-int(before[1])
+        up = int(after[9])-int(before[9])
+        return float(up)/1024.0, float(down)/1024.0
+
+    def __exit__(self):
+        pass
+    
+######################################################################################
+
+
+class RpiSystem(object):
+    def __init__(self):
+        pass
+
+    def cpu_temp(self):
+        cpu_temp = _file_output("/sys/class/thermal/thermal_zone0/temp")
+        return float(cpu_temp)/1000
+
+    def disk_stat(self):
+        #根据树莓派系统，选择/dev/root，第2行
+        data = _cmd_output("df -h", 1)
+        info = data.split()
+        # 0-Filesystem 1-Size  2-Used 3-Avail 4-Use% 5-Mounted on
+        return "可用空间%s，已使用%s"%(info[3], info[4])
+        
+
+    def uptime(self):
+        uptime = {}
+        all_sec = float(_file_output("/proc/uptime").split()[0])
+        MINUTE,HOUR,DAY = 60,3600,86400
+        uptime['day'] = int(all_sec / DAY )
+        uptime['hour'] = int((all_sec % DAY) / HOUR)
+        uptime['minute'] = int((all_sec % HOUR) / MINUTE)
+        uptime['second'] = int(all_sec % MINUTE)
+        #uptime['Free rate'] = float(con[1]) / float(con[0])
+        return "%d天%d小时%d分%d秒"%(uptime['day'],uptime['hour'],uptime['minute'],uptime['second'])
+
+    def cpu_load(self):
+        loading = _cmd_output("top -n1 | awk '/Cpu\(s\):/ {print $2}'")
+        return float(loading)
+
+    def memory_stat(self):
+        mem = {}
+        lines = _file_output("/proc/meminfo", -1)
+        for line in lines:
+            if len(line) < 2: continue
+            name = line.split(':')[0]
+            var = line.split(':')[1].split()[0]
+            # 单位：MB
+            mem[name] = long(var)/1000 
+        mem['MemUsed'] = mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']
+        return int(mem['MemUsed']), int(mem['MemTotal']), int(mem['MemUsed']*100/mem['MemTotal'])
+
+    def __exit__(self):
+        pass
