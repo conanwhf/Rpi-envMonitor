@@ -163,11 +163,18 @@ class PCF8591(object):
         value = self._read_data(2)
         return value
         
-    def power(state=1):
-        if state==1:
+    def _power(self,on=1):
+        if on==1:
             GPIO.output( self.power, GPIO.HIGH)
         else :
             GPIO.output( self.power, GPIO.LOW )
+        return on
+            
+    def powerOn(self):
+        return self._power(1)
+        
+    def powerOff(self):
+        return self._power(0)
 
     def __exit__(self):
         self.bus.close()

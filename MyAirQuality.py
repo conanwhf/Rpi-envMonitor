@@ -49,11 +49,18 @@ class AirQuality(object):
             pm25=pm10=0
         return (pm25,pm10)
     
-    def power(on=1):
+    def _power(self,on=1):
         if on==1:
             GPIO.output( self.power, GPIO.HIGH)
         else :
             GPIO.output( self.power, GPIO.LOW )
+        return on
+            
+    def powerOn(self):
+        return self._power(1)
+        
+    def powerOff(self):
+        return self._power(0)
 
     def __exit__(self):
         self.ser.close()

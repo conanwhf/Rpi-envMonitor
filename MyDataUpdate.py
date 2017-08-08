@@ -21,7 +21,7 @@ class sysState:
 		self.mem = ""				# 内存信息
 		self.disk = ""				# 磁盘使用率
 		self.uptime = ""			# 开机时间
-		self.IP = "192.168.0.1"		# IP地址
+		self.ip = "192.168.0.1"		# IP地址
 		self.ping = 0				# ping google
 
 class sensorState:
@@ -42,22 +42,24 @@ sys = sysState()
 sen = sensorState()
 mode = 2	# 0-静止状态（什么都不做），1-激活状态，2-日常状态
 
-def normal_loop():
+def normal_loop(info):
 	while mode > 0:
 		sys.uptime = sys.sys.uptime()
-		sys.IP = sys.net.public_ip()
-		print("开机时间：%s， IP地址:%s" %(sys.uptime,sys.IP))
+		sys.ip = sys.net.public_ip()
+		print("开机时间：%s， IP地址:%s" %(sys.uptime,sys.ip))
+		info.uptime['text'] = "开机时间：%s" %sys.uptime
+		info.ip['text'] = "IP地址: %s" %sys.ip
 		time.sleep(3000) #30min
 	print("normal loop stopped")
 	
 	
-def special_loop():
+def special_loop(info):
 	while mode > 0:
 		print('mode=%d' %mode)
 		# power on devices
-		#sen.air.power(1)
-		sen.dht11.power(1)
-		#sen.pcf.power(1)
+		sen.air.powerOn()
+		sen.dht11.powerOn()
+		sen.pcf.powerOn()
 		
 		# get info
 		(sen.pm25, sen.pm10) = sen.air.getData()
@@ -65,18 +67,46 @@ def special_loop():
 		sys.disk = sys.sys.disk_stat()
 		print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10))
 		print("磁盘使用：%s" %sys.disk)
+		# UI更新部分信息
+		info.temperature['text'] = "温度：%d℃" %sen.temperature
+		info.humidity['text'] = "湿度：%d%%" %sen.humidity
+		info.pm25['text'] = "PM2.5: %d" %sen.pm25
+		info.pm10['text'] = "PM10: %d" %sen.pm10
+		#info.light['text'] = "光照条件：%s" 			# 光照强度
+		info.disk['text'] = "磁盘使用：%s" %sys.disk
+		
 		if mode==1:		# 激活状态
 			(_, _, sys.mem)=sys.sys.memory_stat()
 			sys.cpu_t = sys.sys.cpu_temp()
 			sys.loading = sys.sys.cpu_load()
 			sys.ping = sys.net.ping()
 			print("系统： CPU温度%.1f'C，占用率%.1f%%，内存使用 %d%%, ping回应：%.2fms" %(sys.cpu_t, sys.loading, sys.mem, sys.ping))
-		
-		#休眠
-		if mode==1:
-			time.sleep(1)	# 1s
+			info.sys['text'] = "CPU温度%.1f℃，占用率%.1f%%，内存使用 %d%%, ping回应：%.2fms" %(sys.cpu_t, sys.loading, sys.mem, sys.ping)
+			
 		else:
-			time.sleep(600)	#10min
-	
+			print("!!!!! get here!!!!")
+			info.sys['text'] = "日常模式，点击按钮切换到实时监控模式"
+			# power off devices
+			sen.air.powerOff()
+			sen.dht11.powerOff()
+			sen.pcf.powerOff()
+			
+		#休眠
+		for i in range(600): #10min
+			time.sleep(1)
+			#print('test,mode=%d' %mode)
+			if mode!=2: # active mode or need stop 
+				break
+
+	# loop stop	
 	print("special loop stopped")
 
+
+def setMode(new):
+	global mode
+	mode = new
+	print('set , mode=%d' %mode)
+	return mode
+	
+def getMode():
+	return mode

@@ -72,11 +72,18 @@ class DHT11(object):
             time.sleep(0.2) 
         return h,t
         
-    def power(state=1):
-        if state==1:
+    def _power(self,on=1):
+        if on==1:
             GPIO.output( self.power, GPIO.HIGH)
         else :
             GPIO.output( self.power, GPIO.LOW )
+        return on
+            
+    def powerOn(self):
+        return self._power(1)
+        
+    def powerOff(self):
+        return self._power(0)
 
     def __exit__(self):
         GPIO.cleanup()
@@ -109,11 +116,18 @@ class BackLight(object):
         self.power = powerpin
         GPIO.setup( self.power , GPIO.OUT)
     
-    def power(state=1):
-        if state==1:
+    def _power(self,on=1):
+        if on==1:
             GPIO.output( self.power, GPIO.HIGH)
         else :
             GPIO.output( self.power, GPIO.LOW )
+        return on
+            
+    def powerOn(self):
+        return self._power(1)
+        
+    def powerOff(self):
+        return self._power(0)
                   
     def __exit__(self):
         GPIO.cleanup()
