@@ -1,6 +1,9 @@
+#!/usr/bin/python3
 #-*- coding:utf-8 -*-
+
 import time
 import smbus
+import RPi.GPIO as GPIO
 
 # Operating Modes
 BMP180_ULTRALOWPOWER     = 0
@@ -135,9 +138,12 @@ class BMP180(object):
 
 class PCF8591(object):
     """docstring for PCF8591"""
-    def __init__(self, i2c_adddr=0x48):
+    def __init__(self, i2c_adddr=0x48, powerpin=4):
         self.addr = i2c_adddr
         self.bus = smbus.SMBus(1)
+        GPIO.setmode(GPIO.BCM)
+        self.power = powerpin
+        GPIO.setup( self.power , GPIO.OUT)
 
     def _read_data(self,i):
         A=[0x40, 0x41, 0x42, 0x43]
@@ -148,19 +154,21 @@ class PCF8591(object):
         #print("A%d OUT: %3d, %1.3f, in %1.2fV power-%1.3f " %(i, value,value/255.0, power, value*power/255.0))
         return value
 
-    def get_sunshine_level(self):
+    def get_light_level(self):
         value = self._read_data(1)
         #0-255，越高越黑
         return value
 
-    def get_noise_level(self):
-        value =0
-        for i in range(5):
-            #0-255，一般环境在10-50，60+有背景音，90+很吵
-            temp = self._read_data(2)
-            if value<temp: value=temp
-            time.sleep(0.2)
+    def get_warm_level(self):
+        value = self._read_data(2)
         return value
+        
+    def power(state=1):
+        if state==1:
+            GPIO.output( self.power, GPIO.HIGH)
+        else :
+            GPIO.output( self.power, GPIO.LOW )
 
     def __exit__(self):
         self.bus.close()
+        GPIO.cleanup()

@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+#-*- coding:utf-8 -*-
 import RPi.GPIO as GPIO
 import time
 
@@ -6,14 +7,15 @@ DHT11_DATA_LEN = 5
 
 class DHT11(object):
     """docstring for DHT11"""
-    def __init__(self, datapin=23):
+    def __init__(self, datapin=24, powerpin=25):
         GPIO.setmode(GPIO.BCM)
         self.pin = datapin
+        self.power = powerpin
+        GPIO.setup( self.power , GPIO.OUT)
         count=0
 
     def _read_data(self):
         self.data=[]
-        #test=[]
         # reset        
         GPIO.setup( self.pin , GPIO.OUT)
         GPIO.output( self.pin , GPIO.LOW)
@@ -44,9 +46,7 @@ class DHT11(object):
                 self.data.append(0)
             else:
                 self.data.append(1)
-        #    test.append(i)
         #print("DHT11 get data: ", self.data)
-        #print(test)
 
 
     def _cal(self):
@@ -57,7 +57,7 @@ class DHT11(object):
                 res[i] += self.data[i*8+j]<<(7-j)
         #print("DHT11 res: ", res)
         if res[0]+res[2]!=res[4]:  # 数据校验
-        #    print("DHT11: data check error!")
+            print("DHT11: data check error!")
             return -1, -1
         else:
         #    print("humidity: %d, temperature: %d C" %(res[0], res[2]))
@@ -71,6 +71,50 @@ class DHT11(object):
                 break
             time.sleep(0.2) 
         return h,t
+        
+    def power(state=1):
+        if state==1:
+            GPIO.output( self.power, GPIO.HIGH)
+        else :
+            GPIO.output( self.power, GPIO.LOW )
 
     def __exit__(self):
         GPIO.cleanup()
+
+
+
+
+
+class SoundDetect(object):
+    """docstring for sound detect sensor"""
+    def __init__(self, datapin=17):
+        GPIO.setmode(GPIO.BCM)
+        self.pin = datapin
+        GPIO.setup( self.pin , GPIO.IN)
+    
+    def state(self):
+        if GPIO.input( self.pin ) == GPIO.HIGH:
+            return 1
+        else:
+            return 0
+        
+    def __exit__(self):
+        GPIO.cleanup()
+        
+        
+class BackLight(object):
+    """docstring for backlight"""
+    def __init__(self, powerpin=26):
+        GPIO.setmode(GPIO.BCM)
+        self.power = powerpin
+        GPIO.setup( self.power , GPIO.OUT)
+    
+    def power(state=1):
+        if state==1:
+            GPIO.output( self.power, GPIO.HIGH)
+        else :
+            GPIO.output( self.power, GPIO.LOW )
+                  
+    def __exit__(self):
+        GPIO.cleanup()
+    

@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+#-*- coding:utf-8 -*-
+
 import sys
 import os
 import time
 import socket 
 import struct 
 import fcntl 
-import urllib,random,re
+import random,re
+from urllib import request
 
 
 def _file_output(arg, line=0):
@@ -26,7 +29,9 @@ def _cmd_output(args, line=0):
         return res
     else:
         return res[line]
+        
 
+######################################################################################
 
 class RpiNetWork(object):
     def __init__(self):
@@ -55,15 +60,17 @@ class RpiNetWork(object):
             http://www.tanziars.com/
             http://www.naumann-net.org/
             http://www.godwiz.com/
-            http://checkip.eurodyndns.org/""".strip().split("\n")
+            http://checkip.eurodyndns.org/""".split("\n")
         for i in range(3):
-            host = random.choice(hosts)
+            host = random.choice(hosts).strip()
             try:
-                results = ip_regex.findall(urllib.urlopen(host).read(200000))
-                if results: return results[0][0]
+                response = request.urlopen(host).read()
+                result = ip_regex.findall(response.decode('utf-8'))
+                if result: 
+                    return result[0][0]
             except:
-                pass # Let's try another host
-        return None
+                pass
+        return ""
 
 
     def local_ip(self, ethname='eth0'): 
@@ -81,6 +88,11 @@ class RpiNetWork(object):
         down = int(after[1])-int(before[1])
         up = int(after[9])-int(before[9])
         return float(up)/1024.0, float(down)/1024.0
+        
+    def ping(self):
+        data = _cmd_output("ping google.com -c 1", 5)
+        res = data.split('/')[5]
+        return float(res)
 
     def __exit__(self):
         pass
@@ -112,8 +124,8 @@ class RpiSystem(object):
         uptime['hour'] = int((all_sec % DAY) / HOUR)
         uptime['minute'] = int((all_sec % HOUR) / MINUTE)
         uptime['second'] = int(all_sec % MINUTE)
-        #uptime['Free rate'] = float(con[1]) / float(con[0])
-        return "%d天%d小时%d分%d秒"%(uptime['day'],uptime['hour'],uptime['minute'],uptime['second'])
+        print("%d天%d小时%d分%d秒" %(uptime['day'],uptime['hour'],uptime['minute'],uptime['second']))
+        return "%d天%d小时"%(uptime['day'],uptime['hour'])
 
     def cpu_load(self):
         loading = _cmd_output("top -n1 | awk '/Cpu\(s\):/ {print $2}'")
@@ -127,7 +139,7 @@ class RpiSystem(object):
             name = line.split(':')[0]
             var = line.split(':')[1].split()[0]
             # 单位：MB
-            mem[name] = long(var)/1000 
+            mem[name] = int(var)/1000 
         mem['MemUsed'] = mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']
         return int(mem['MemUsed']), int(mem['MemTotal']), int(mem['MemUsed']*100/mem['MemTotal'])
 
