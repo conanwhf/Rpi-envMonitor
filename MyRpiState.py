@@ -61,8 +61,9 @@ class RpiNetWork(object):
             http://www.naumann-net.org/
             http://www.godwiz.com/
             http://checkip.eurodyndns.org/""".split("\n")
-        for i in range(3):
-            host = random.choice(hosts).strip()
+        for i in hosts:
+            host = i.strip()
+            print(host)
             try:
                 response = request.urlopen(host).read()
                 result = ip_regex.findall(response.decode('utf-8'))
@@ -90,9 +91,14 @@ class RpiNetWork(object):
         return float(up)/1024.0, float(down)/1024.0
         
     def ping(self):
-        data = _cmd_output("ping google.com -c 1", 5)
-        res = data.split('/')[5]
-        return float(res)
+        data = _cmd_output("ping google.com -c 1", -1)
+        try:
+            res = data[5].split('/')[5]
+            res = res.rjust(9)
+            return ("%sms" %res)
+        except:
+            res = "Timeout"
+            return res
 
     def __exit__(self):
         pass
@@ -113,7 +119,7 @@ class RpiSystem(object):
         data = _cmd_output("df -h", 1)
         info = data.split()
         # 0-Filesystem 1-Size  2-Used 3-Avail 4-Use% 5-Mounted on
-        return "可用空间%s，已使用%s"%(info[3], info[4])
+        return "已使用%s，可用空间%s"%(info[4], info[3])
         
 
     def uptime(self):
