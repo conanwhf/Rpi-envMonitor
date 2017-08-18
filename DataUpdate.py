@@ -1,16 +1,13 @@
 #!/usr/bin/python3
 #-*- coding:utf-8 -*-
 
-import sqlite3
-import time
-import sys 
-import datetime
-from MyRpiState import RpiNetWork
-from MyRpiState import RpiSystem
-from MyAirQuality import AirQuality
-from MyGpioDev import DHT11
-from MyGpioDev import BackLight
-from MyI2cDev import PCF8591
+import sys,time
+from RpiState import RpiNetWork
+from RpiState import RpiSystem
+from AirQuality import AirQuality
+from DHT11 import DHT11
+from PCF8591 import PCF8591
+from GpioPower import *
 
 class sysState:
 	def __init__(self):
@@ -26,15 +23,14 @@ class sysState:
 
 class sensorState:
 	def __init__(self):
-		self.air = AirQuality(18)		# 空气质量检测传感器类
-		self.dht11 = DHT11(24,25)		# 温湿度传感器类
-		self.bl = BackLight(26)		# 背光类
-		self.pcf = PCF8591(4)		# 数模转换、光照传感器类
+		self.air = AirQuality()		# 空气质量检测传感器类
+		self.dht11 = DHT11(23)		# 温湿度传感器类
+		self.pcf = PCF8591()		# 数模转换、光照传感器类
 		self.temperature = 0		# 温度
 		self.humidity = 0			# 湿度
 		self.pm25 = 0				# PM2.5
 		self.pm10 = 0				# PM10
-		self.light = 0				# 光照强度
+		self.light = ""				# 光照强度
 		
 
 # 全局变量，定义状态变量
@@ -58,33 +54,32 @@ def normal_loop(info):
 	
 def special_loop(info):
 	global blTimer
+	power_init_all()
 	while mode > 0:
 		print('mode=%d' %mode)
 		# power on devices
-		sen.air.powerOn()
-		sen.dht11.powerOn()
-		sen.pcf.powerOn()
+		set_sensor_power(on=1)
 		
 		# get info
 		(sen.pm25, sen.pm10) = sen.air.getData()
 		(sen.humidity, sen.temperature) = sen.dht11.get()
+		(temp, sen.light) = sen.pcf.get_light_level()
 		sys.disk = sys.sys.disk_stat()
-		print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10))
+		print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
 		print("磁盘使用：%s" %sys.disk)
+		set_led_power(green=1, yellow=0, red=0)
 		# UI更新部分信息
 		info.temperature['text'] = "%d℃" %sen.temperature
 		info.humidity['text'] = "%d%%" %sen.humidity
 		info.pm25['text'] = "%d" %sen.pm25
 		info.pm10['text'] = "%d" %sen.pm10
-		#info.light['text'] = "光照条件：%s" 			# 光照强度
+		info.light['text'] = "光照条件：%s" 			# 光照强度
 		info.disk['text'] = "磁盘：%s" %sys.disk
 		
 		if mode==2:		# 日常状态
 			print("!!!!! get here!!!!")
 			# power off devices
-			sen.air.powerOff()
-			sen.dht11.powerOff()
-			sen.pcf.powerOff()
+			set_sensor_power(on=0)
 		else:		# 激活状态
 			(_, _, sys.mem)=sys.sys.memory_stat()
 			sys.cpu_t = sys.sys.cpu_temp()
@@ -104,12 +99,13 @@ def special_loop(info):
 				blTimer = blTimer-1
 				if blTimer == 0:
 					print("长时间未操作，关闭背光")
-					#info.ip['text'] = "背光已关闭"
-					sen.bl.powerOff()
+					set_backlight_power(on=0)
 			else:			# 背光关闭状态
 				pass
 
 	# loop stop	
+	power_deinit_all()
+	set_sensor_power(on=0)
 	print("special loop stopped")
 
 
@@ -125,6 +121,5 @@ def getMode():
 def resetBacklightTimer():
 	global blTimer
 	print("打开背光")
-	#info.ip['text'] = "背光已打开"
+	set_backlight_power(on=1)
 	blTimer = blTimeout
-	sen.bl.powerOn()

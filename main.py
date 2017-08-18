@@ -5,7 +5,7 @@ import time
 import sys 
 import datetime
 import _thread
-from MyDataUpdate import *
+from DataUpdate import *
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import *
@@ -107,11 +107,17 @@ if __name__ == "__main__":
 	def eventListener(event):
 		print("eventListener, %s" %event)
 		resetBacklightTimer()
-	
+	def closeWindow():
+		tkinter.messagebox.showerror(title='警告',message='准备关闭程序')
+		setMode(0)
+		time.sleep(2)
+		os._exit()
+
 	# 注册callback
 	switch.bind("<ButtonRelease-1>",buttonListener)
 	win.bind("<Button-1>",eventListener)
 	win.bind("<FocusIn>",eventListener)
 	win.bind("<FocusOut>",eventListener)
+	win.protocol('WM_DELETE_WINDOW', closeWindow)
 	
 	win.mainloop()

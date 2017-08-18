@@ -40,27 +40,15 @@ class RpiNetWork(object):
     def public_ip(self):
         ip_regex = re.compile("(([0-9]{1,3}\.){3}[0-9]{1,3})")
         # List of host which return the public IP address:
-        hosts = """http://www.whatismyip.com/
-            http://adresseip.com
-            http://www.aboutmyip.com/
-            http://www.ipchicken.com/
-            http://www.showmyip.com/
-            http://monip.net/
-            http://checkrealip.com/
-            http://ipcheck.rehbein.net/
-            http://checkmyip.com/
-            http://www.raffar.com/checkip/
-            http://www.thisip.org/
-            http://www.lawrencegoetz.com/programs/ipinfo/
-            http://www.mantacore.se/whoami/
-            http://www.edpsciences.org/htbin/ipaddress
+        hosts = """http://www.lawrencegoetz.com/programs/ipinfo/
             http://mwburden.com/cgi-bin/getipaddr
-            http://checkipaddress.com/
-            http://www.glowhost.com/support/your.ip.php
-            http://www.tanziars.com/
-            http://www.naumann-net.org/
-            http://www.godwiz.com/
-            http://checkip.eurodyndns.org/""".split("\n")
+            http://checkip.eurodyndns.org/
+            http://checkip.dyndns.org/
+            http://checkrealip.com/
+            http://adresseip.com
+            http://www.ipchicken.com/
+            http://checkmyip.com/
+            http://www.naumann-net.org/""".split("\n")
         for i in hosts:
             host = i.strip()
             print(host)
@@ -71,7 +59,7 @@ class RpiNetWork(object):
                     return result[0][0]
             except:
                 pass
-        return ""
+        return "UNKNOWN"
 
 
     def local_ip(self, ethname='eth0'): 
@@ -94,10 +82,11 @@ class RpiNetWork(object):
         data = _cmd_output("ping google.com -c 1", -1)
         try:
             res = data[5].split('/')[5]
+            res = "%.1fms" %float(res)
             res = res.rjust(9)
-            return ("%sms" %res)
+            return res
         except:
-            res = "Timeout"
+            res = "Timeout".rjust(9)
             return res
 
     def __exit__(self):

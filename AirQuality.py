@@ -2,11 +2,10 @@
 #-*- coding:utf-8 -*-
 
 import serial
-import RPi.GPIO as GPIO
 
 class AirQuality(object):
     """Air Quality"""
-    def __init__(self, powerpin=18):
+    def __init__(self):
         self.ser = serial.Serial(
         	port='/dev/ttyAMA0',              # number of device, numbering starts at
         	baudrate=9600,          # baud rate
@@ -17,9 +16,6 @@ class AirQuality(object):
         	xonxoff=0,              # enable software flow control
         	rtscts=0,               # enable RTS/CTS flow control
 	   )
-        GPIO.setmode(GPIO.BCM)
-        self.power = powerpin
-        GPIO.setup( self.power , GPIO.OUT)
 
     def _check(self,data):
         if data[0]!=0xAA:
@@ -48,19 +44,6 @@ class AirQuality(object):
         else:
             pm25=pm10=0
         return (pm25,pm10)
-    
-    def _power(self,on=1):
-        if on==1:
-            GPIO.output( self.power, GPIO.HIGH)
-        else :
-            GPIO.output( self.power, GPIO.LOW )
-        return on
-            
-    def powerOn(self):
-        return self._power(1)
-        
-    def powerOff(self):
-        return self._power(0)
 
     def __exit__(self):
         self.ser.close()
