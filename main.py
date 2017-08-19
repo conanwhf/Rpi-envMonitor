@@ -108,10 +108,10 @@ if __name__ == "__main__":
 		print("eventListener, %s" %event)
 		resetBacklightTimer()
 	def closeWindow():
-		tkinter.messagebox.showerror(title='警告',message='准备关闭程序')
-		setMode(0)
-		time.sleep(2)
-		os._exit()
+		if tkinter.messagebox.askokcancel("退出", "确认退出?"):
+			setMode(0)
+			time.sleep(2)
+			win.destroy()
 
 	# 注册callback
 	switch.bind("<ButtonRelease-1>",buttonListener)

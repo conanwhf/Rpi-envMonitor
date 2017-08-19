@@ -2,9 +2,9 @@
 #-*- coding:utf-8 -*-
 import RPi.GPIO as GPIO
 
-sensor_pins={'air':12,'dht':21,'pcf':7}
-led_pins={'green':33,'yellow':35,'red':37}
-bl_pin=40
+sensor_pins={'air':12,'dht':35,'pcf':7}
+led_pins={'green':40,'yellow':38,'red':36}
+bl_pin=23
 
 def _GPIO_Power_Regist(pins):
     GPIO.setmode(GPIO.BOARD)

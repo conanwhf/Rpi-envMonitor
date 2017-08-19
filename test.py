@@ -24,7 +24,7 @@ class sysState:
 class sensorState:
 	def __init__(self):
 		self.air = AirQuality()		# 空气质量检测传感器类
-		self.dht11 = DHT11(23)		# 温湿度传感器类
+		self.dht11 = DHT11(37)		# 温湿度传感器类
 		self.pcf = PCF8591()		# 数模转换、光照传感器类
 		self.temperature = 0		# 温度
 		self.humidity = 0			# 湿度

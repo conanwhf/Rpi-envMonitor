@@ -24,7 +24,7 @@ class sysState:
 class sensorState:
 	def __init__(self):
 		self.air = AirQuality()		# 空气质量检测传感器类
-		self.dht11 = DHT11(23)		# 温湿度传感器类
+		self.dht11 = DHT11(37)		# 温湿度传感器类
 		self.pcf = PCF8591()		# 数模转换、光照传感器类
 		self.temperature = 0		# 温度
 		self.humidity = 0			# 湿度
@@ -67,13 +67,18 @@ def special_loop(info):
 		sys.disk = sys.sys.disk_stat()
 		print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
 		print("磁盘使用：%s" %sys.disk)
-		set_led_power(green=1, yellow=0, red=0)
+		if sen.pm25 < 50:
+			set_led_power(green=1, yellow=0, red=0)
+		elif sen.pm25 < 100:
+			set_led_power(green=0, yellow=1, red=0)
+		else:
+			set_led_power(green=0, yellow=0, red=1)
 		# UI更新部分信息
 		info.temperature['text'] = "%d℃" %sen.temperature
 		info.humidity['text'] = "%d%%" %sen.humidity
 		info.pm25['text'] = "%d" %sen.pm25
 		info.pm10['text'] = "%d" %sen.pm10
-		info.light['text'] = "光照条件：%s" 			# 光照强度
+		info.light['text'] = sen.light	# 光照强度
 		info.disk['text'] = "磁盘：%s" %sys.disk
 		
 		if mode==2:		# 日常状态
@@ -85,7 +90,7 @@ def special_loop(info):
 			sys.cpu_t = sys.sys.cpu_temp()
 			sys.loading = sys.sys.cpu_load()
 			sys.ping = sys.net.ping()
-			print("系统： CPU温度%.1f'C，占用率%.1f%%，内存使用 %d%%, ping回应：%.2fms" %(sys.cpu_t, sys.loading, sys.mem, sys.ping))
+			print("系统： CPU温度%.1f'C，占用率%.1f%%，内存使用 %d%%, ping回应：%s" %(sys.cpu_t, sys.loading, sys.mem, sys.ping))
 			info.sys['text'] = "CPU温度%.1f℃，占用率%.1f%%，内存使用 %d%%" %(sys.cpu_t, sys.loading, sys.mem)
 			info.ping['text'] = "ping回应：%s" %(sys.ping)
 		
@@ -104,8 +109,10 @@ def special_loop(info):
 				pass
 
 	# loop stop	
-	power_deinit_all()
 	set_sensor_power(on=0)
+	set_led_power(green=0, yellow=0, red=0)
+	power_deinit_all()
+	set_backlight_power(on=1)
 	print("special loop stopped")
 
 
