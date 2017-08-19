@@ -55,11 +55,14 @@ def normal_loop(info):
 def special_loop(info):
 	global blTimer
 	power_init_all()
+	power_state = 0
 	while mode > 0:
 		print('mode=%d' %mode)
-		# power on devices
-		set_sensor_power(on=1)
-		
+		if power_state == 0:
+			# power on devices
+			set_sensor_power(on=1)
+			power_state = 1
+			
 		# get info
 		(sen.pm25, sen.pm10) = sen.air.getData()
 		(sen.humidity, sen.temperature) = sen.dht11.get()
@@ -81,11 +84,7 @@ def special_loop(info):
 		info.light['text'] = sen.light	# 光照强度
 		info.disk['text'] = "磁盘：%s" %sys.disk
 		
-		if mode==2:		# 日常状态
-			print("!!!!! get here!!!!")
-			# power off devices
-			set_sensor_power(on=0)
-		else:		# 激活状态
+		if mode==1:		# 激活状态
 			(_, _, sys.mem)=sys.sys.memory_stat()
 			sys.cpu_t = sys.sys.cpu_temp()
 			sys.loading = sys.sys.cpu_load()
@@ -100,6 +99,10 @@ def special_loop(info):
 			print('test,mode=%d' %mode)
 			if mode!=2: # active mode or need stop 
 				break
+			elif power_state == 1:
+				# power off devices
+				set_sensor_power(on=0)
+				power_state = 0
 			if blTimer >0:	#时间未到，背光持续亮
 				blTimer = blTimer-1
 				if blTimer == 0:
@@ -110,6 +113,7 @@ def special_loop(info):
 
 	# loop stop	
 	set_sensor_power(on=0)
+	power_state = 0
 	set_led_power(green=0, yellow=0, red=0)
 	power_deinit_all()
 	set_backlight_power(on=1)
