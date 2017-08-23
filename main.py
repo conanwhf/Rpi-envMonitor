@@ -41,16 +41,16 @@ if __name__ == "__main__":
 	
 	class infoTexts:
 		def __init__(self):
-			self.temperature = 	Label(win,	text="30",	font = DataFont)
-			self.humidity = 	Label(win,	text="15",	font = DataFont)
-			self.pm25 = 		Label(win,	text="25",	font = DataFont)		
-			self.pm10 = 		Label(win, 	text="100",	font = DataFont)		
+			self.temperature = 	Label(win,	text="N/A",	font = DataFont)
+			self.humidity = 	Label(win,	text="N/A",	font = DataFont)
+			self.pm25 = 		Label(win,	text="N/A",	font = DataFont)		
+			self.pm10 = 		Label(win, 	text="N/A",	font = DataFont)		
 			self.light = 		Label(win,	font = 'Helvetica -32 bold',	text="明亮")
 			self.ip = 	Label(win, font = 'Helvetica -24 bold', text="IP地址:0.0.0.0")
-			self.ping = Label(win, font = 'Helvetica -24 bold', text="ping回应：35.15ms")
-			self.uptime=Label(win, font = 'Helvetica -20',		text="开机：10天20小时")
-			self.disk = Label(win, font = 'Helvetica -20',		text="磁盘占用：XXXfdasfdsafadsadf")
-			self.sys = 	Label(win, font = 'Helvetica -20',		text="CPU温度53.0'C\t占用率1.6%\t内存使用 32%")
+			self.ping = Label(win, font = 'Helvetica -24 bold', text="ping回应：N/A")
+			self.uptime=Label(win, font = 'Helvetica -20',		text="开机：N/A")
+			self.disk = Label(win, font = 'Helvetica -20',		text="磁盘占用：N/A")
+			self.sys = 	Label(win, font = 'Helvetica -20',		text="CPU温度 N/A'C,占用率 N/A%\t\t内存使用 N/A%")
 	info = infoTexts()
 
 	# do main process first

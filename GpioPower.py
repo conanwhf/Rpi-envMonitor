@@ -33,7 +33,7 @@ def power_init_all():
 def power_deinit_all():
     _GPIO_Power_UnRegist(list(sensor_pins.values()))
     _GPIO_Power_UnRegist(list(led_pins.values()))
-    _GPIO_Power_UnRegist(bl_pin)
+    #_GPIO_Power_UnRegist(bl_pin)
     return
     
 def set_led_power(green, yellow, red):
