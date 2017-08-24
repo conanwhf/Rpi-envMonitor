@@ -51,7 +51,7 @@ class RpiNetWork(object):
             http://www.naumann-net.org/""".split("\n")
         for i in hosts:
             host = i.strip()
-            print(host)
+            #print(host)
             try:
                 response = request.urlopen(host).read()
                 result = ip_regex.findall(response.decode('utf-8'))
@@ -119,7 +119,7 @@ class RpiSystem(object):
         uptime['hour'] = int((all_sec % DAY) / HOUR)
         uptime['minute'] = int((all_sec % HOUR) / MINUTE)
         uptime['second'] = int(all_sec % MINUTE)
-        print("%d天%d小时%d分%d秒" %(uptime['day'],uptime['hour'],uptime['minute'],uptime['second']))
+        #print("%d天%d小时%d分%d秒" %(uptime['day'],uptime['hour'],uptime['minute'],uptime['second']))
         return "%d天%d小时"%(uptime['day'],uptime['hour'])
 
     def cpu_load(self):
