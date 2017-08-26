@@ -42,8 +42,8 @@ def set_led_power(green, yellow, red):
     _GPIO_Power_Set(led_pins['red'], red)
     return
     
-def set_backlight_power(on):  
-    _GPIO_Power_Set(bl_pin, on)
+def set_backlight_power(on):
+    #_GPIO_Power_Set(bl_pin, on)
     return
 
 def set_sensor_power(on):

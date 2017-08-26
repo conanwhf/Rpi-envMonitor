@@ -40,24 +40,48 @@ sys = sysState()
 sen = sensorState()
 
 power_init_all()
+'''
+while True:
+	print("power ONNNNNNNN")
+	set_backlight_power(on=1)
+	set_led_power(green=1, yellow=0, red=0)
+	time.sleep(5)
+	print("power OFFFFFFF")
+	set_backlight_power(on=0)
+	set_led_power(green=0, yellow=0, red=1)
+	time.sleep(5)
+'''
 
-# power on devices
-set_sensor_power(on=1)
+'''
 set_backlight_power(on=1)
-set_led_power(green=1, yellow=0, red=1)
-# get info
-(sen.pm25, sen.pm10) = sen.air.getData()
-#(sen.humidity, sen.temperature) = sen.dht11.get()
-(sen.humidity, sen.temperature) = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, sen.dht)
-(temp, sen.light) = sen.pcf.get_light_level()
-print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
+print("背光打开")
+time.sleep(20)
+set_backlight_power(on=1)
+print("背光关闭")
+time.sleep(200)
+os.exit()
+'''
+set_backlight_power(on=1)
+while True:
+	set_led_power(green=1, yellow=0, red=0)
+	
+	# get info
+	set_sensor_power(on=1)
+	(sen.pm25, sen.pm10) = sen.air.getData()
+	(sen.humidity, sen.temperature) = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, sen.dht)
+	(temp, sen.light) = sen.pcf.get_light_level()
+	print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
+	set_sensor_power(on=0)
+	print("传感器关闭，等待背光关闭")
+	
+	set_backlight_power(on=0)
+	set_led_power(green=0, yellow=0, red=1)
+	time.sleep(5)
+	set_led_power(green=0, yellow=1, red=0)
+	set_backlight_power(on=1)
+	time.sleep(5)
 
-time.sleep(5)
 
-set_sensor_power(on=0)
-set_led_power(green=0, yellow=1, red=0)
-time.sleep(2)
-set_backlight_power(on=0)
 power_deinit_all()
 
 

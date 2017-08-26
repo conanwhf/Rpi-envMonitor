@@ -71,8 +71,13 @@ def special_loop(info):
 		(sen.humidity, sen.temperature) = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, sen.dht)
 		(temp, sen.light) = sen.pcf.get_light_level()
 		sys.disk = sys.sys.disk_stat()
-		print("天气： %d℃，湿度%d%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
+		# 温湿度手动校准
+		sen.humidity = float(sen.humidity) 
+		sen.temperature = float(sen.temperature)
+		print("天气： %.1f℃，湿度%.1f%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
 		print("磁盘使用：%s" %sys.disk)
+		
+		#空气质量指示灯
 		if sen.pm25 < 50:
 			set_led_power(green=1, yellow=0, red=0)
 		elif sen.pm25 < 100:
@@ -80,8 +85,8 @@ def special_loop(info):
 		else:
 			set_led_power(green=0, yellow=0, red=1)
 		# UI更新部分信息
-		info.temperature['text'] = "%d℃" %sen.temperature
-		info.humidity['text'] = "%d%%" %sen.humidity
+		info.temperature['text'] = "%.1f℃" %sen.temperature
+		info.humidity['text'] = "%.1f%%" %sen.humidity
 		info.pm25['text'] = "%d" %sen.pm25
 		info.pm10['text'] = "%d" %sen.pm10
 		info.light['text'] = sen.light	# 光照强度
@@ -99,7 +104,7 @@ def special_loop(info):
 		#休眠
 		for i in range(600): #10min
 			time.sleep(1)
-			print('test,mode=%d' %mode)
+			#print('test,mode=%d' %mode)
 			if mode!=2: # active mode or need stop 
 				break
 			elif power_state == 1:
@@ -111,7 +116,7 @@ def special_loop(info):
 				if blTimer == 0:
 					print("长时间未操作，关闭背光")
 					set_backlight_power(on=0)
-			else:			# 背光关闭状态
+			else:	# 背光关闭状态
 				pass
 
 	# loop stop	
