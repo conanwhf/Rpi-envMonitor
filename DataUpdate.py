@@ -8,6 +8,7 @@ from AirQuality import AirQuality
 #from DHT11 import DHT11
 from PCF8591 import PCF8591
 from GpioPower import *
+from Database import *
 import Adafruit_DHT
 
 class sysState:
@@ -91,6 +92,12 @@ def special_loop(info):
 		info.pm10['text'] = "%d" %sen.pm10
 		info.light['text'] = sen.light	# 光照强度
 		info.disk['text'] = "磁盘：%s" %sys.disk
+		
+		#上传数据到yeelink
+		upload_to_yeelink('pm25', sen.pm25)
+		upload_to_yeelink('pm10', sen.pm10)
+		upload_to_yeelink('temperature', sen.temperature)
+		upload_to_yeelink('humidity', sen.humidity)
 		
 		if mode==1:		# 激活状态
 			(_, _, sys.mem)=sys.sys.memory_stat()
