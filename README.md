@@ -10,7 +10,7 @@ A small family environment monitor system, base on Python3.
 - [ ] 数据保存至本地数据库
 - [x] 屏幕显示数据
 - [x] 空气质量恶化时红灯报警
-- [ ] 上报状态至yeelink
+- [x] 上报状态至yeelink
 
 
 对于DHT22，需要装官方库**Adafruit_Python_DHT**，且使用pip安装失败。安装步骤如下：

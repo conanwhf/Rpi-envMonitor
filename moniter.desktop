@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=家庭环境监控
+GenericName=Conan 家庭环境监控
+Comment=By Conan
+TryExec=/home/pi/work/Rpi-envMonitor/main.py
+Exec=/home/pi/work/Rpi-envMonitor/main.py
+Icon=/home/pi/work/Rpi-envMonitor/Conan.ico
+Type=Application
+StartupNotify=true
+Terminal=true
+Categories=GTK;Utility;TerminalEmulator;
