@@ -21,7 +21,7 @@ def upload_to_yeelink(name, value):
 	print(url, strftime)
 	data={"timestamp":strftime , "value": value}
 	try:
-		res=requests.post(url,headers=apiHeaders,data=json.dumps(data))
+		res=requests.post(url,headers=apiHeaders,json=data, timeout=3.0)
 		if res.status_code!=200:
 			print("status_code:",res.status_code)
 		else:
