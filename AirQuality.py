@@ -18,6 +18,7 @@ class AirQuality(object):
 	   )
 
     def _check(self,data):
+        #print(data)
         if data[0]!=0xAA:
             return False
         if data[1]!=0xC0:
@@ -47,4 +48,3 @@ class AirQuality(object):
 
     def __exit__(self):
         self.ser.close()
-        GPIO.cleanup()

@@ -27,7 +27,7 @@ def _GPIO_Power_Set(pins, on):
 def power_init_all():
     _GPIO_Power_Regist(list(sensor_pins.values()))
     _GPIO_Power_Regist(list(led_pins.values()))
-    _GPIO_Power_Regist(bl_pin)
+    #_GPIO_Power_Regist(bl_pin)
     return
     
 def power_deinit_all():
@@ -35,6 +35,22 @@ def power_deinit_all():
     _GPIO_Power_UnRegist(list(led_pins.values()))
     #_GPIO_Power_UnRegist(bl_pin)
     return
+    
+def power_init_sensor():
+    _GPIO_Power_Regist(list(sensor_pins.values()))
+    return
+    
+def power_deinit_sensor():
+    _GPIO_Power_UnRegist(list(sensor_pins.values()))
+    return    
+    
+def power_init_led():
+    _GPIO_Power_Regist(list(led_pins.values()))
+    return
+    
+def power_deinit_led():
+    _GPIO_Power_UnRegist(list(led_pins.values()))
+    return 
     
 def set_led_power(green, yellow, red):
     _GPIO_Power_Set(led_pins['green'], green)

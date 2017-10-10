@@ -63,6 +63,7 @@ def special_loop(info):
 		print('mode=%d' %mode)
 		if power_state == 0:
 			# power on devices
+			power_init_sensor()
 			set_sensor_power(on=1)
 			power_state = 1
 			
@@ -73,8 +74,14 @@ def special_loop(info):
 		(temp, sen.light) = sen.pcf.get_light_level()
 		sys.disk = sys.sys.disk_stat()
 		# 温湿度手动校准
-		sen.humidity = float(sen.humidity) 
-		sen.temperature = float(sen.temperature)
+		if sen.humidity is None:
+			sen.humidity = 0.0
+		else:
+			sen.humidity = float(sen.humidity)
+		if sen.temperature is None:
+			sen.temperature = 0.0
+		else:
+			sen.temperature = float(sen.temperature)
 		print("天气： %.1f℃，湿度%.1f%%, 空气质量PM2.5=%d, PM10=%d, 照度=%d-%s" %(sen.temperature,sen.humidity,sen.pm25,sen.pm10, temp, sen.light))
 		print("磁盘使用：%s" %sys.disk)
 		
@@ -117,7 +124,9 @@ def special_loop(info):
 			elif power_state == 1:
 				# power off devices
 				set_sensor_power(on=0)
+				power_deinit_sensor()
 				power_state = 0
+			'''背光控制
 			if blTimer >0:	#时间未到，背光持续亮
 				blTimer = blTimer-1
 				if blTimer == 0:
@@ -125,10 +134,12 @@ def special_loop(info):
 					set_backlight_power(on=0)
 			else:	# 背光关闭状态
 				pass
+			'''
 
-	# loop stop	
-	set_sensor_power(on=0)
-	power_state = 0
+	# loop stop
+	if power_state == 1:
+		set_sensor_power(on=0)
+		power_state = 0
 	set_led_power(green=0, yellow=0, red=0)
 	set_backlight_power(on=1)
 	power_deinit_all()
@@ -145,7 +156,10 @@ def getMode():
 	return mode
 	
 def resetBacklightTimer():
+	'''
 	global blTimer
 	print("打开背光")
 	set_backlight_power(on=1)
 	blTimer = blTimeout
+	'''
+	return
